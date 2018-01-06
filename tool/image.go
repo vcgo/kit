@@ -1,9 +1,9 @@
-package Kit
+package main
 
 import (
 	"fmt"
 )
 
-func Test() {
+func main() {
 	fmt.Println("23333")
 }
