@@ -6,7 +6,7 @@ only support .bmp
 
 ```bash
 go get github.com/vcgo/kit
-go get github.com/vcgo/kit/tool/transimg
+go get github.com/vcgo/kit/transimg
 
 ```
 
