@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"path"
 	"runtime"
 	"strconv"
 	"strings"
@@ -22,7 +23,7 @@ var (
 	Logger log.Logger
 )
 
-func init() {
+func InitLogger() {
 	loggerTmp := log.NewLogger()
 	t1 := log.NewConsoleTarget()
 	t2 := log.NewFileTarget()
@@ -31,7 +32,7 @@ func init() {
 	loggerTmp.Targets = append(loggerTmp.Targets, t1, t2)
 	loggerTmp.Open()
 	Logger = *loggerTmp
-	defer Logger.Close()
+	Logger.Info("Info")
 }
 
 // sleep Millisecond
@@ -46,7 +47,7 @@ func Log(desc string, args ...interface{}) {
 		argsDesc += " " + strings.TrimSpace(fmt.Sprintln(val))
 	}
 	_, file, line, _ := runtime.Caller(1)
-	fileName := strings.Split(file, "src/")[1]
+	fileName := path.Base(file)
 	fileLine := fileName + " " + strconv.Itoa(line) + " "
 	Logger.Notice(fileLine + "  " + desc + argsDesc)
 }
@@ -82,7 +83,7 @@ func LeftClick() {
 }
 
 // find color from area, return nil is success
-func FindColor(area Area, color robotgo.CHex) (int, int, error) {
+func (area Area) FindColor(color robotgo.CHex) (int, int, error) {
 	x, y := robotgo.FindColorCS(area.X, area.Y, area.W, area.H, color, 0)
 
 	if x > 0 || y > 0 {
@@ -93,7 +94,7 @@ func FindColor(area Area, color robotgo.CHex) (int, int, error) {
 }
 
 // find pic from area, return nil is success
-func FindPic(area Area, imgbitmap robotgo.CBitmap, tolerance float32) (int, int, error) {
+func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float32) (int, int, error) {
 
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	findBitmap := robotgo.ToMMBitmapRef(imgbitmap)
@@ -104,6 +105,21 @@ func FindPic(area Area, imgbitmap robotgo.CBitmap, tolerance float32) (int, int,
 	} else {
 		return -1, -1, errors.New("Cant find pic")
 	}
+}
+
+// test *Area
+func (area Area) Test(path string) {
+
+	path = strings.TrimRight(path, "/") + "/"
+
+	Mkdirs(path)
+	pngName := path
+	pngName += strconv.Itoa(area.X) + "-" + strconv.Itoa(area.Y) + "-"
+	pngName += strconv.Itoa(area.W) + "-" + strconv.Itoa(area.H)
+	pngName += string(time.Now().Format(".2006-01-02.15_04_05")) + ".png"
+
+	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
+	_ = robotgo.SaveBitmap(whereBitmap, pngName)
 }
 
 // Key Press
@@ -121,4 +137,18 @@ func KeyDown(key string) {
 // Key Up
 func KeyUp(key string) {
 	robotgo.KeyToggle(key, "up")
+}
+
+func Mkdirs(imgpath string) bool {
+
+	_, err := os.Stat(imgpath)
+	if err == nil {
+		return true
+	}
+	errm := os.MkdirAll(imgpath, 0755)
+	if errm == nil {
+		return true
+	}
+	return false
+
 }
