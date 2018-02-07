@@ -23,6 +23,7 @@ func main() {
 	w := bufio.NewWriter(f)
 
 	fmt.Fprintf(w, "%v\n", "package imgstr")
+	fmt.Fprintf(w, "%v\n", "import \"github.com/go-vgo/robotgo\"")
 	fmt.Fprintf(w, "%v\n", "var ImgStr map[string]robotgo.CBitmap")
 	fmt.Fprintf(w, "%v\n", "func init() {")
 	fmt.Fprintf(w, "%v\n", "ImgStr = map[string]robotgo.CBitmap{")

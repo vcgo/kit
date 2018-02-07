@@ -19,11 +19,18 @@ type Area struct {
 	X, Y, W, H int
 }
 
+type Point struct {
+	X, Y int
+}
+
 var (
 	Logger log.Logger
 )
 
 func InitLogger() {
+	if Logger.Category != "" {
+		return
+	}
 	loggerTmp := log.NewLogger()
 	t1 := log.NewConsoleTarget()
 	t2 := log.NewFileTarget()
@@ -32,7 +39,7 @@ func InitLogger() {
 	loggerTmp.Targets = append(loggerTmp.Targets, t1, t2)
 	loggerTmp.Open()
 	Logger = *loggerTmp
-	Logger.Info("Info")
+	Logger.Info("InitLogger")
 }
 
 // sleep Millisecond
@@ -41,7 +48,8 @@ func Sleep(x int) {
 }
 
 // write log
-func Log(desc string, args ...interface{}) {
+func Log(desc string, args ...interface{}) string {
+	InitLogger()
 	argsDesc := ""
 	for _, val := range args {
 		argsDesc += " " + strings.TrimSpace(fmt.Sprintln(val))
@@ -50,23 +58,23 @@ func Log(desc string, args ...interface{}) {
 	fileName := path.Base(file)
 	fileLine := fileName + " " + strconv.Itoa(line) + " "
 	Logger.Notice(fileLine + "  " + desc + argsDesc)
+	return desc + argsDesc
 }
 
 // Exit
-func Exit(args ...interface{}) {
+func Exit(desc string, args ...interface{}) {
+	InitLogger()
 	argsDesc := ""
 	for _, val := range args {
 		argsDesc += " " + strings.TrimSpace(fmt.Sprintln(val))
 	}
 	_, file, line, _ := runtime.Caller(1)
-	fileName := strings.Split(file, "src/")[1]
+	fileName := path.Base(file)
 	fileLine := fileName + " " + strconv.Itoa(line) + " "
-	if argsDesc != "" {
-		Logger.Error(fileLine + "  " + argsDesc)
-	}
-
-	Logger.Error(fileLine + " Exit!!!\n")
-	os.Exit(1)
+	Logger.Error(fileLine + "  " + desc + argsDesc)
+	Logger.Close()
+	robotgo.ShowAlert("DNF GO Error!", desc)
+	// os.Exit(1)
 }
 
 // mouse move to x, y
@@ -94,7 +102,7 @@ func (area Area) FindColor(color robotgo.CHex) (int, int, error) {
 }
 
 // find pic from area, return nil is success
-func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float32) (int, int, error) {
+func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float64) (int, int, error) {
 
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	findBitmap := robotgo.ToMMBitmapRef(imgbitmap)
@@ -105,6 +113,13 @@ func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float32) (int, int
 	} else {
 		return -1, -1, errors.New("Cant find pic")
 	}
+}
+
+// find pic from area, return nil is success
+func GetColor(x int, y int) string {
+	// colorStr :=
+	// fmt.Println("...", colorStr)
+	return robotgo.PadHex(robotgo.GetPxColor(x, y))
 }
 
 // test *Area
