@@ -24,8 +24,15 @@ type Point struct {
 }
 
 var (
-	Logger log.Logger
+	Logger      log.Logger
+	Screen      Area
+	LogFileName = ""
 )
+
+func init() {
+	w, h := robotgo.GetScreenSize()
+	Screen = Area{0, 0, w, h}
+}
 
 func InitLogger() {
 	if Logger.Category != "" {
@@ -34,7 +41,11 @@ func InitLogger() {
 	loggerTmp := log.NewLogger()
 	t1 := log.NewConsoleTarget()
 	t2 := log.NewFileTarget()
-	t2.FileName = "app.log"
+	if LogFileName == "" {
+		t2.FileName = "app.log"
+	} else {
+		t2.FileName = "app" + string(time.Now().Format(".2006-01-02")) + ".log"
+	}
 	t2.MaxLevel = log.LevelNotice
 	loggerTmp.Targets = append(loggerTmp.Targets, t1, t2)
 	loggerTmp.Open()
@@ -90,6 +101,13 @@ func LeftClick() {
 	robotgo.MouseToggle("up", "left")
 }
 
+// mouse move to and left click
+func MoveClick(x int, y int) {
+	MoveTo(x, y)
+	Sleep(88 + rand.Intn(10))
+	LeftClick()
+}
+
 // find color from area, return nil is success
 func (area Area) FindColor(color robotgo.CHex) (int, int, error) {
 	x, y := robotgo.FindColorCS(area.X, area.Y, area.W, area.H, color, 0)
@@ -112,6 +130,17 @@ func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float64) (int, int
 		return area.X + x, area.Y + y, nil
 	} else {
 		return -1, -1, errors.New("Cant find pic")
+	}
+}
+
+// Do something until find the pic
+func (area Area) UntilFindPic(BeforFunc func(), imgbitmap robotgo.CBitmap, tolerance float64) (int, int) {
+	for {
+		x, y, err := area.FindPic(imgbitmap, tolerance)
+		if err == nil {
+			return x, y
+		}
+		BeforFunc()
 	}
 }
 
