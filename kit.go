@@ -15,24 +15,10 @@ import (
 	"github.com/go-vgo/robotgo"
 )
 
-type Area struct {
-	X, Y, W, H int
-}
-
-type Point struct {
-	X, Y int
-}
-
 var (
 	Logger      log.Logger
-	Screen      Area
 	LogFileName = ""
 )
-
-func init() {
-	w, h := robotgo.GetScreenSize()
-	Screen = Area{0, 0, w, h}
-}
 
 func InitLogger() {
 	if Logger.Category != "" {
@@ -42,8 +28,6 @@ func InitLogger() {
 	t1 := log.NewConsoleTarget()
 	t2 := log.NewFileTarget()
 	if LogFileName == "" {
-		t2.FileName = "app.log"
-	} else {
 		t2.FileName = "app" + string(time.Now().Format(".2006-01-02")) + ".log"
 	}
 	t2.MaxLevel = log.LevelNotice
@@ -60,6 +44,8 @@ func Sleep(x int) {
 
 // write log
 func Log(desc string, args ...interface{}) string {
+	fmt.Println(Logger.Category, desc, args)
+	return ""
 	InitLogger()
 	argsDesc := ""
 	for _, val := range args {
@@ -88,30 +74,9 @@ func Exit(desc string, args ...interface{}) {
 	// os.Exit(1)
 }
 
-// mouse move to x, y
-func MoveTo(x int, y int) {
-	robotgo.Move(x, y)
-	// robotgo.MoveSmooth(x, y, 900, 1000)
-}
-
-// mouse left click
-func LeftClick() {
-	robotgo.MouseToggle("down", "left")
-	Sleep(55 + rand.Intn(10))
-	robotgo.MouseToggle("up", "left")
-}
-
-// mouse move to and left click
-func MoveClick(x int, y int) {
-	MoveTo(x, y)
-	Sleep(88 + rand.Intn(10))
-	LeftClick()
-}
-
 // find color from area, return nil is success
 func (area Area) FindColor(color robotgo.CHex) (int, int, error) {
 	x, y := robotgo.FindColorCS(area.X, area.Y, area.W, area.H, color, 0)
-
 	if x > 0 || y > 0 {
 		return area.X + x, area.Y + y, nil
 	} else {
@@ -135,35 +100,14 @@ func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float64) (int, int
 
 // Do something until find the pic
 func (area Area) UntilFindPic(BeforFunc func(), imgbitmap robotgo.CBitmap, tolerance float64) (int, int) {
-	for {
+	for i := 0; i < 188; i++ {
 		x, y, err := area.FindPic(imgbitmap, tolerance)
 		if err == nil {
 			return x, y
 		}
 		BeforFunc()
 	}
-}
-
-// find pic from area, return nil is success
-func GetColor(x int, y int) string {
-	// colorStr :=
-	// fmt.Println("...", colorStr)
-	return robotgo.PadHex(robotgo.GetPxColor(x, y))
-}
-
-// test *Area
-func (area Area) Test(path string) {
-
-	path = strings.TrimRight(path, "/") + "/"
-
-	Mkdirs(path)
-	pngName := path
-	pngName += strconv.Itoa(area.X) + "-" + strconv.Itoa(area.Y) + "-"
-	pngName += strconv.Itoa(area.W) + "-" + strconv.Itoa(area.H)
-	pngName += string(time.Now().Format(".2006-01-02.15_04_05")) + ".png"
-
-	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
-	_ = robotgo.SaveBitmap(whereBitmap, pngName)
+	return 0, 0
 }
 
 // Key Press
