@@ -44,8 +44,8 @@ func Sleep(x int) {
 
 // write log
 func Log(desc string, args ...interface{}) string {
-	fmt.Println(Logger.Category, desc, args)
-	return ""
+	// fmt.Println(Logger.Category, desc, args)
+	// return ""
 	InitLogger()
 	argsDesc := ""
 	for _, val := range args {
