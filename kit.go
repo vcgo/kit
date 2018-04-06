@@ -18,6 +18,7 @@ import (
 var (
 	Logger      log.Logger
 	LogFileName = ""
+	DeferKeyUp  = ""
 )
 
 func InitLogger() {
@@ -29,6 +30,8 @@ func InitLogger() {
 	t2 := log.NewFileTarget()
 	if LogFileName == "" {
 		t2.FileName = "app" + string(time.Now().Format(".2006-01-02")) + ".log"
+	} else {
+		t2.FileName = LogFileName
 	}
 	t2.MaxLevel = log.LevelNotice
 	loggerTmp.Targets = append(loggerTmp.Targets, t1, t2)
@@ -42,10 +45,14 @@ func Sleep(x int) {
 	time.Sleep(time.Duration(x) * time.Millisecond)
 }
 
-// write log
-func Log(desc string, args ...interface{}) string {
+// fmt
+func Fmt(desc string, args ...interface{}) string {
 	fmt.Println(Logger.Category, desc, args)
 	return ""
+}
+
+// write log
+func Log(desc string, args ...interface{}) string {
 	InitLogger()
 	argsDesc := ""
 	for _, val := range args {
@@ -120,11 +127,20 @@ func KeyPress(key string) {
 // Key Down
 func KeyDown(key string) {
 	robotgo.KeyToggle(key, "down")
+	DeferKeyUp = key
 }
 
 // Key Up
 func KeyUp(key string) {
 	robotgo.KeyToggle(key, "up")
+}
+
+// Key Defer
+func KeyDefer() {
+	if DeferKeyUp == "" {
+		return
+	}
+	robotgo.KeyToggle(DeferKeyUp, "up")
 }
 
 func Mkdirs(imgpath string) bool {
