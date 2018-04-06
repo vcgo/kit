@@ -45,13 +45,13 @@ func Sleep(x int) {
 	time.Sleep(time.Duration(x) * time.Millisecond)
 }
 
-// fmt
+// Fmt is output something
 func Fmt(desc string, args ...interface{}) string {
 	fmt.Println(Logger.Category, desc, args)
 	return ""
 }
 
-// write log
+// Log is write log and output easily.
 func Log(desc string, args ...interface{}) string {
 	InitLogger()
 	argsDesc := ""
