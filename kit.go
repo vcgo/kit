@@ -24,6 +24,7 @@ var (
 	Logger      log.Logger
 	LogFileName = ""
 	Screen      Area
+	DeferKeyUp  = ""
 )
 
 func init() {
@@ -41,6 +42,8 @@ func InitLogger() {
 	t2 := log.NewFileTarget()
 	if LogFileName == "" {
 		t2.FileName = "app" + string(time.Now().Format(".2006-01-02")) + ".log"
+	} else {
+		t2.FileName = LogFileName
 	}
 	t2.MaxLevel = log.LevelNotice
 	loggerTmp.Targets = append(loggerTmp.Targets, t1, t2)
@@ -54,7 +57,13 @@ func Sleep(x int) {
 	time.Sleep(time.Duration(x) * time.Millisecond)
 }
 
-// Log is write log for any variable.
+// Fmt is print any variable
+func Fmt(desc string, args ...interface{}) string {
+	fmt.Println(Logger.Category, desc, args)
+	return ""
+}
+
+// Log is write log and output any variable easily.
 func Log(desc string, args ...interface{}) string {
 	InitLogger()
 	argsDesc := ""

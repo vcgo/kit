@@ -19,9 +19,17 @@ func KeyPress(key string) {
 // KeyDown is press down a key
 func KeyDown(key string) {
 	robotgo.KeyToggle(key, "down")
+	DeferKeyUp = key
 }
 
 // KeyUp is press up a key
 func KeyUp(key string) {
 	robotgo.KeyToggle(key, "up")
+}
+
+func KeyDefer() {
+	if DeferKeyUp == "" {
+		return
+	}
+	robotgo.KeyToggle(DeferKeyUp, "up")
 }
