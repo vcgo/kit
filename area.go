@@ -1,6 +1,7 @@
 package kit
 
 import (
+	"errors"
 	"math"
 	"strconv"
 	"strings"
@@ -9,22 +10,61 @@ import (
 	"github.com/go-vgo/robotgo"
 )
 
-type Area struct {
-	X, Y, W, H int
+// Help for param:
+//
+// * color robotgo.CHex, is HEX color like this: 0xFF00DD
+//
+// * imgbitmap robotgo.CBitmap, only support .bmp now.
+//
+//   - robotgo.CBitmap(robotgo.OpenBitmap("/your/path/image.bmp", 2))
+//
+//   - or use tool transimg, `go get github.com/vcgo/kit/transimg`:
+//      Generate: 	Put .bmp images path to GOPATH, then on the path run `transimg`
+//      Use: 		import (. "github.com/your/path/bmpimages")
+//           		Screen.FindPic(ImgStr["bmpimages/image.bmp"], 0.14)
+
+// FindColor from area, return nil is success
+func (area Area) FindColor(color robotgo.CHex) (int, int, error) {
+	x, y := robotgo.FindColorCS(area.X, area.Y, area.W, area.H, color, 0)
+	if x > 0 || y > 0 {
+		return area.X + x, area.Y + y, nil
+	} else {
+		return x, y, errors.New("Cant find color")
+	}
 }
 
-var Screen Area
+// FindPic find the position of image from area, return nil is success
+func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float64) (int, int, error) {
 
-func init() {
-	w, h := robotgo.GetScreenSize()
-	Screen = Area{0, 0, w, h}
+	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
+	findBitmap := robotgo.ToMMBitmapRef(imgbitmap)
+	x, y := robotgo.FindBitmap(findBitmap, whereBitmap, tolerance)
+
+	if x > 0 || y > 0 {
+		return area.X + x, area.Y + y, nil
+	} else {
+		return -1, -1, errors.New("Cant find pic")
+	}
 }
 
+// UntilFindPic do something until find the pic
+func (area Area) UntilFindPic(BeforFunc func(), imgbitmap robotgo.CBitmap, tolerance float64) (int, int) {
+	for i := 0; i < 188; i++ {
+		x, y, err := area.FindPic(imgbitmap, tolerance)
+		if err == nil {
+			return x, y
+		}
+		BeforFunc()
+	}
+	return 0, 0
+}
+
+// Center get the area center point.
 func (area Area) Center() (int, int) {
 	return area.X + area.W/2, area.Y + area.H/2
 }
 
-// Splice Area
+// Splice Area to a arrays.
 //
 // Such as : 2 row 3 col
 // |-----------------|
@@ -32,7 +72,6 @@ func (area Area) Center() (int, int) {
 // |-----|-----|-----|
 // | 1,0 | 1,1 | 1,2 |
 // |-----------------|
-
 func (area Area) Splice(srow uint, scol uint) [][]Area {
 	row := int(srow)
 	col := int(scol)
@@ -49,17 +88,14 @@ func (area Area) Splice(srow uint, scol uint) [][]Area {
 	return res
 }
 
-// test *Area
+// Test can save Area to imgage for debug.
 func (area Area) Test(path string) {
-
 	path = strings.TrimRight(path, "/") + "/"
-
 	Mkdirs(path)
 	pngName := path
 	pngName += string(time.Now().Format("2006_01_02.15_04_05")) + "-"
 	pngName += strconv.Itoa(area.X) + "-" + strconv.Itoa(area.Y) + "-"
 	pngName += strconv.Itoa(area.W) + "-" + strconv.Itoa(area.H) + ".png"
-
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	_ = robotgo.SaveBitmap(whereBitmap, pngName)
 }

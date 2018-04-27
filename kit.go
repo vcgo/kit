@@ -1,9 +1,7 @@
 package kit
 
 import (
-	"errors"
 	"fmt"
-	"math/rand"
 	"os"
 	"path"
 	"runtime"
@@ -15,11 +13,25 @@ import (
 	"github.com/go-vgo/robotgo"
 )
 
+// Area is a screen area,
+// X,Y is the start point
+// W,H is the area's width and hight
+type Area struct {
+	X, Y, W, H int
+}
+
 var (
 	Logger      log.Logger
 	LogFileName = ""
+	Screen      Area
 )
 
+func init() {
+	w, h := robotgo.GetScreenSize()
+	Screen = Area{0, 0, w, h}
+}
+
+// InitLogger the func Log() will initialize it.
 func InitLogger() {
 	if Logger.Category != "" {
 		return
@@ -37,15 +49,13 @@ func InitLogger() {
 	Logger.Info("InitLogger")
 }
 
-// sleep Millisecond
+// Sleep wait x millisecond
 func Sleep(x int) {
 	time.Sleep(time.Duration(x) * time.Millisecond)
 }
 
-// write log
+// Log is write log for any variable.
 func Log(desc string, args ...interface{}) string {
-	fmt.Println(Logger.Category, desc, args)
-	return ""
 	InitLogger()
 	argsDesc := ""
 	for _, val := range args {
@@ -58,7 +68,7 @@ func Log(desc string, args ...interface{}) string {
 	return desc + argsDesc
 }
 
-// Exit
+// Exit exit the program.
 func Exit(desc string, args ...interface{}) {
 	InitLogger()
 	argsDesc := ""
@@ -71,72 +81,18 @@ func Exit(desc string, args ...interface{}) {
 	Logger.Error(fileLine + "  " + desc + argsDesc)
 	Logger.Close()
 	robotgo.ShowAlert("DNF GO Error!", desc)
-	// os.Exit(1)
+	os.Exit(1)
 }
 
-// find color from area, return nil is success
-func (area Area) FindColor(color robotgo.CHex) (int, int, error) {
-	x, y := robotgo.FindColorCS(area.X, area.Y, area.W, area.H, color, 0)
-	if x > 0 || y > 0 {
-		return area.X + x, area.Y + y, nil
-	} else {
-		return x, y, errors.New("Cant find color")
-	}
-}
-
-// find pic from area, return nil is success
-func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float64) (int, int, error) {
-
-	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
-	findBitmap := robotgo.ToMMBitmapRef(imgbitmap)
-	x, y := robotgo.FindBitmap(findBitmap, whereBitmap, tolerance)
-
-	if x > 0 || y > 0 {
-		return area.X + x, area.Y + y, nil
-	} else {
-		return -1, -1, errors.New("Cant find pic")
-	}
-}
-
-// Do something until find the pic
-func (area Area) UntilFindPic(BeforFunc func(), imgbitmap robotgo.CBitmap, tolerance float64) (int, int) {
-	for i := 0; i < 188; i++ {
-		x, y, err := area.FindPic(imgbitmap, tolerance)
-		if err == nil {
-			return x, y
-		}
-		BeforFunc()
-	}
-	return 0, 0
-}
-
-// Key Press
-func KeyPress(key string) {
-	robotgo.KeyToggle(key, "down")
-	Sleep(55 + rand.Intn(10))
-	robotgo.KeyToggle(key, "up")
-}
-
-// Key Down
-func KeyDown(key string) {
-	robotgo.KeyToggle(key, "down")
-}
-
-// Key Up
-func KeyUp(key string) {
-	robotgo.KeyToggle(key, "up")
-}
-
-func Mkdirs(imgpath string) bool {
-
+// Mkdirs
+func Mkdirs(imgpath string) error {
 	_, err := os.Stat(imgpath)
 	if err == nil {
-		return true
+		return err
 	}
 	errm := os.MkdirAll(imgpath, 0755)
 	if errm == nil {
-		return true
+		return errm
 	}
-	return false
-
+	return nil
 }
