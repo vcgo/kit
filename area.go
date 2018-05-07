@@ -35,11 +35,11 @@ func (area Area) FindColor(color robotgo.CHex) (int, int, error) {
 
 // FindPic find the position of image from area, return nil is success
 func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float64) (int, int, error) {
-
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	findBitmap := robotgo.ToMMBitmapRef(imgbitmap)
 	x, y := robotgo.FindBitmap(findBitmap, whereBitmap, tolerance)
-
+	robotgo.FreeBitmap(whereBitmap)
+	robotgo.FreeBitmap(findBitmap)
 	if x > 0 || y > 0 {
 		return area.X + x, area.Y + y, nil
 	} else {
@@ -98,4 +98,5 @@ func (area Area) Test(path string) {
 	pngName += strconv.Itoa(area.W) + "-" + strconv.Itoa(area.H) + ".png"
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	_ = robotgo.SaveBitmap(whereBitmap, pngName)
+	robotgo.FreeBitmap(whereBitmap)
 }
