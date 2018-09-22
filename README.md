@@ -1,5 +1,9 @@
 # A kit.
 
+## Requirements
+
+https://github.com/go-vgo/robotgo#requirements
+
 ## Install
 
 only support .bmp
