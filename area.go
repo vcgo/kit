@@ -24,8 +24,10 @@ import (
 //           		Screen.FindPic(ImgStr["bmpimages/image.bmp"], 0.14)
 
 // FindColor from area, return nil is success
-func (area Area) FindColor(color robotgo.CHex) (int, int, error) {
-	x, y := robotgo.FindColorCS(area.X, area.Y, area.W, area.H, color, 0)
+func (area Area) FindColor(color robotgo.CHex, tolerance float32) (int, int, error) {
+	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
+	x, y := robotgo.FindColor(whereBitmap, color, tolerance)
+	robotgo.FreeBitmap(whereBitmap)
 	if x > 0 || y > 0 {
 		return area.X + x, area.Y + y, nil
 	} else {
@@ -39,7 +41,7 @@ func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float64) (int, int
 	findBitmap := robotgo.ToMMBitmapRef(imgbitmap)
 	x, y := robotgo.FindBitmap(findBitmap, whereBitmap, tolerance)
 	robotgo.FreeBitmap(whereBitmap)
-	robotgo.FreeBitmap(findBitmap)
+	// robotgo.FreeBitmap(findBitmap)
 	if x > 0 || y > 0 {
 		return area.X + x, area.Y + y, nil
 	} else {
@@ -99,4 +101,16 @@ func (area Area) Test(path string) {
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	_ = robotgo.SaveBitmap(whereBitmap, pngName)
 	robotgo.FreeBitmap(whereBitmap)
+}
+
+// CountPixel list Area pixel.
+func (area Area) CountPixel() map[Point]string {
+	res := make(map[Point]string)
+	for x := area.X; x < area.X+area.W; x++ {
+		for y := area.Y; y < area.Y+area.H; y++ {
+			point := Point{x, y}
+			res[point] = point.GetColor()
+		}
+	}
+	return res
 }

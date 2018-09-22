@@ -19,6 +19,13 @@ func LeftClick() {
 	robotgo.MouseToggle("up", "left")
 }
 
+// RightClick mouse right click
+func RightClick() {
+	robotgo.MouseToggle("down", "right")
+	Sleep(55 + rand.Intn(10))
+	robotgo.MouseToggle("up", "right")
+}
+
 // LeftDoubleClick mouse left double click
 func LeftDoubleClick() {
 	robotgo.MouseToggle("down", "left")

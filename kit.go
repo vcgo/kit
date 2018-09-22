@@ -24,7 +24,6 @@ var (
 	Logger      log.Logger
 	LogFileName = ""
 	Screen      Area
-	DeferKeyUp  = ""
 )
 
 func init() {
