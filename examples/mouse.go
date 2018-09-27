@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
-	// kit.MoveTo(500, 500)
-	kit.DragTo(500, 500)
+	kit.Point{200, 33}.DragTo(kit.Point{500, 500})
+	kit.Sleep(999)
+	kit.LeftDoubleClick()
 }

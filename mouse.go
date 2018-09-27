@@ -8,8 +8,8 @@ import (
 
 // MoveTo mouse move to x, y
 func MoveTo(x int, y int) {
-	robotgo.Move(x, y)
-	// robotgo.MoveSmooth(x, y, 900, 1000)
+	// robotgo.Move(x, y)
+	robotgo.MoveSmooth(x, y, 0.033, 0.046, rand.Intn(33))
 }
 
 // LeftClick mouse left click
@@ -29,12 +29,13 @@ func RightClick() {
 // LeftDoubleClick mouse left double click
 func LeftDoubleClick() {
 	robotgo.MouseToggle("down", "left")
-	Sleep(55 + rand.Intn(10))
+	Sleep(155 + rand.Intn(10))
 	robotgo.MouseToggle("up", "left")
-	Sleep(55 + rand.Intn(10))
+	Sleep(155 + rand.Intn(10))
 	robotgo.MouseToggle("down", "left")
-	Sleep(55 + rand.Intn(10))
+	Sleep(155 + rand.Intn(10))
 	robotgo.MouseToggle("up", "left")
+	Sleep(155 + rand.Intn(10))
 }
 
 // MoveClick mouse move to and left click

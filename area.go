@@ -26,7 +26,7 @@ import (
 // FindColor from area, return nil is success
 func (area Area) FindColor(color robotgo.CHex, tolerance float32) (int, int, error) {
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
-	x, y := robotgo.FindColor(whereBitmap, color, tolerance)
+	x, y := robotgo.FindColor(color, whereBitmap, tolerance)
 	robotgo.FreeBitmap(whereBitmap)
 	if x > 0 || y > 0 {
 		return area.X + x, area.Y + y, nil
