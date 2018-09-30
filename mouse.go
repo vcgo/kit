@@ -8,8 +8,8 @@ import (
 
 // MoveTo mouse move to x, y
 func MoveTo(x int, y int) {
-	// robotgo.Move(x, y)
-	robotgo.MoveSmooth(x, y, 0.033, 0.046, rand.Intn(33))
+	robotgo.Move(x, y)
+	// robotgo.MoveSmooth(x, y, 0.033, 0.046, rand.Intn(9))
 }
 
 // LeftClick mouse left click

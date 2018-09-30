@@ -24,7 +24,7 @@ import (
 //           		Screen.FindPic(ImgStr["bmpimages/image.bmp"], 0.14)
 
 // FindColor from area, return nil is success
-func (area Area) FindColor(color robotgo.CHex, tolerance float32) (int, int, error) {
+func (area Area) FindColor(color robotgo.CHex, tolerance float64) (int, int, error) {
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	x, y := robotgo.FindColor(color, whereBitmap, tolerance)
 	robotgo.FreeBitmap(whereBitmap)

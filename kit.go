@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"path"
 	"runtime"
@@ -33,6 +34,7 @@ var (
 func init() {
 	w, h := robotgo.GetScreenSize()
 	Screen = Area{0, 0, w, h}
+	rand.Seed(time.Now().Unix())
 }
 
 // InitLogger the func Log() will initialize it.
