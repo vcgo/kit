@@ -16,6 +16,7 @@ import (
 
 	log "github.com/go-ozzo/ozzo-log"
 	"github.com/go-vgo/robotgo"
+	"github.com/tarm/serial"
 )
 
 // Area is a screen area,
@@ -26,15 +27,23 @@ type Area struct {
 }
 
 var (
-	Logger      log.Logger
-	LogFileName = ""
-	Screen      Area
+	Logger       log.Logger
+	LogFileName  = ""
+	Screen       Area
+	SerialConfig = &serial.Config{Name: "COM3", Baud: 9600}
 )
 
 func init() {
 	w, h := robotgo.GetScreenSize()
 	Screen = Area{0, 0, w, h}
 	rand.Seed(time.Now().Unix())
+
+	s, err := serial.OpenPort(SerialConfig)
+	if err != nil {
+		robotgo.ShowAlert("Serial Error!", err.Error())
+		os.Exit(-2)
+	}
+	s.Close()
 }
 
 // InitLogger the func Log() will initialize it.
@@ -224,4 +233,15 @@ func Base64Decode(str string) string {
 		str += "="
 	}
 	return ""
+}
+
+func SerialWrite(bytes []byte) {
+	s, err := serial.OpenPort(SerialConfig)
+	if err == nil {
+		s.Write(bytes)
+	} else {
+		// robotgo.ShowAlert("Serial Error!", err.Error())
+		// os.Exit(-2)
+	}
+	s.Close()
 }
