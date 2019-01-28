@@ -12,6 +12,11 @@ func MoveTo(x int, y int) {
 	// robotgo.MoveSmooth(x, y, 0.033, 0.046, rand.Intn(9))
 }
 
+// MoveSmoothTo mouse move to x, y
+func MoveSmoothTo(x int, y int) {
+	robotgo.MoveSmooth(x, y, 0.033, 0.046, rand.Intn(9))
+}
+
 // LeftClick mouse left click
 func LeftClick() {
 	robotgo.MouseToggle("down", "left")

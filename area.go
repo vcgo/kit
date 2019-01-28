@@ -50,15 +50,15 @@ func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float64) (int, int
 }
 
 // UntilFindPic do something until find the pic
-func (area Area) UntilFindPic(BeforFunc func(), imgbitmap robotgo.CBitmap, tolerance float64) (int, int) {
+func (area Area) UntilFindPic(BeforFunc func(), imgbitmap robotgo.CBitmap, tolerance float64) (int, int, error) {
 	for i := 0; i < 188; i++ {
 		x, y, err := area.FindPic(imgbitmap, tolerance)
 		if err == nil {
-			return x, y
+			return x, y, nil
 		}
 		BeforFunc()
 	}
-	return 0, 0
+	return 0, 0, errors.New("Find pic timeout!")
 }
 
 // Center get the area center point.
@@ -90,14 +90,27 @@ func (area Area) Splice(srow uint, scol uint) [][]Area {
 	return res
 }
 
+// Spl is a data.
+type Spl struct {
+	R, C, M, N uint
+}
+
+// Split
+func (area Area) Split(sp Spl) Area {
+	return area.Splice(sp.R, sp.C)[sp.M][sp.N]
+}
+
 // Test can save Area to imgage for debug.
-func (area Area) Test(path string) {
+func (area Area) Test(pre, path string) {
 	path = strings.TrimRight(path, "/") + "/"
 	Mkdirs(path)
 	pngName := path
 	pngName += string(time.Now().Format("2006_01_02.15_04_05")) + "-"
-	pngName += strconv.Itoa(area.X) + "-" + strconv.Itoa(area.Y) + "-"
-	pngName += strconv.Itoa(area.W) + "-" + strconv.Itoa(area.H) + ".png"
+	pngName += pre + "-"
+	pngName += "x" + strconv.Itoa(area.X) + "-"
+	pngName += "y" + strconv.Itoa(area.Y) + "-"
+	pngName += "w" + strconv.Itoa(area.W) + "-"
+	pngName += "h" + strconv.Itoa(area.H) + ".png"
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	_ = robotgo.SaveBitmap(whereBitmap, pngName)
 	robotgo.FreeBitmap(whereBitmap)
