@@ -18,11 +18,20 @@ func (p Point) GetColor() string {
 // DragTo start on a point, drag to another point.
 func (p Point) DragTo(dstp Point) {
 	MoveTo(p.X, p.Y)
-	Sleep(55 + rand.Intn(10))
+	Sleep(66 + rand.Intn(22))
 	robotgo.MouseToggle("down", "left")
-	Sleep(55 + rand.Intn(10))
+	Sleep(66 + rand.Intn(22))
 	MoveTo(dstp.X, dstp.Y)
-	Sleep(55 + rand.Intn(10))
+	Sleep(66 + rand.Intn(22))
 	robotgo.MouseToggle("up", "left")
-	Sleep(55 + rand.Intn(10))
+	Sleep(66 + rand.Intn(22))
+}
+
+// RightClick mouse right click
+func (p Point) RightClick() {
+	robotgo.Move(p.X, p.Y)
+	Sleep(33 + rand.Intn(33))
+	robotgo.MouseToggle("down", "right")
+	Sleep(33 + rand.Intn(33))
+	robotgo.MouseToggle("up", "right")
 }
