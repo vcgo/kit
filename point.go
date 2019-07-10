@@ -10,6 +10,11 @@ type Point struct {
 	X, Y int
 }
 
+// LeftClick
+func (p Point) LeftClick() {
+	MoveClick(p.X, p.Y)
+}
+
 // GetColor get the point color
 func (p Point) GetColor() string {
 	return robotgo.PadHex(robotgo.GetPxColor(p.X, p.Y))
