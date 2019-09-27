@@ -14,7 +14,7 @@ var KeyUpMap = make(map[string]bool)
 // KeyPress is press key func
 func KeyPress(key string) {
 	KeyDown(key)
-	Sleep(25 + rand.Intn(10))
+	Sleep(44 + rand.Intn(10))
 	KeyUp(key)
 }
 
