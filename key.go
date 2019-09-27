@@ -30,6 +30,7 @@ func KeyUp(key string) {
 	KeyUpMap[key] = false
 }
 
+// KeyDefer some key is pressing, then use this defer func to up it.
 func KeyDefer() {
 	for key, isUp := range KeyUpMap {
 		if isUp == true {
