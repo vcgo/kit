@@ -15,10 +15,10 @@ func (bm Bitmap) ToString() string {
 	return robotgo.TostringBitmap(robotgo.ToCBitmap(bitmap))
 }
 
-func (bm Bitmap) ToBytes() []byte {
-	bitmap := robotgo.Bitmap(bm)
-	return robotgo.ToBitmapBytes(robotgo.ToCBitmap(bitmap))
-}
+// func (bm Bitmap) ToBytes() []byte {
+// 	bitmap := robotgo.Bitmap(bm)
+// 	return robotgo.ToBitmapBytes(robotgo.ToCBitmap(bitmap))
+// }
 
 func (bm Bitmap) SavePng(pngName string) error {
 	cbitmap := robotgo.ToCBitmap(robotgo.Bitmap(bm))

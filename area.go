@@ -62,8 +62,8 @@ func (area Area) UntilFindPic(BeforFunc func(), imgbitmap robotgo.CBitmap, toler
 }
 
 // Center get the area center point.
-func (area Area) Center() (int, int) {
-	return area.X + area.W/2, area.Y + area.H/2
+func (area Area) Center() Point {
+	return Point{area.X + area.W/2, area.Y + area.H/2}
 }
 
 // Splice Area to a arrays.
