@@ -56,3 +56,9 @@ func MoveDoubleClick(x int, y int) {
 	Sleep(88 + rand.Intn(10))
 	LeftDoubleClick()
 }
+
+func SmoothTo(d Point, sleep int) {
+	x, y := robotgo.GetMousePos()
+	p := Point{x, y}
+	p.SmoothTo(d, sleep)
+}
