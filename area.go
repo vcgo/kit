@@ -3,6 +3,7 @@ package kit
 import (
 	"errors"
 	"math"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -24,46 +25,56 @@ import (
 //           		Screen.FindPic(ImgStr["bmpimages/image.bmp"], 0.14)
 
 // FindColor from area, return nil is success
-func (area Area) FindColor(color robotgo.CHex, tolerance float64) (int, int, error) {
+func (area Area) FindColor(color robotgo.CHex, tolerance float64) (Point, error) {
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	x, y := robotgo.FindColor(color, whereBitmap, tolerance)
 	robotgo.FreeBitmap(whereBitmap)
 	if x > 0 || y > 0 {
-		return area.X + x, area.Y + y, nil
+		return Point{area.X + x, area.Y + y}, nil
 	} else {
-		return x, y, errors.New("Cant find color")
+		return Point{x, y}, errors.New("Cant find color")
 	}
 }
 
 // FindPic find the position of image from area, return nil is success
-func (area Area) FindPic(imgbitmap robotgo.CBitmap, tolerance float64) (int, int, error) {
+func (area Area) FindPic(bmp Bitmap, tolerance float64) (Point, error) {
+	findBitmap := robotgo.ToCBitmap(robotgo.Bitmap(bmp))
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
-	findBitmap := robotgo.ToMMBitmapRef(imgbitmap)
 	x, y := robotgo.FindBitmap(findBitmap, whereBitmap, tolerance)
 	robotgo.FreeBitmap(whereBitmap)
 	// robotgo.FreeBitmap(findBitmap)
 	if x > 0 || y > 0 {
-		return area.X + x, area.Y + y, nil
+		return Point{area.X + x, area.Y + y}, nil
 	} else {
-		return -1, -1, errors.New("Cant find pic")
+		return Point{-1, -1}, errors.New("Cant find pic")
 	}
 }
 
 // UntilFindPic do something until find the pic
-func (area Area) UntilFindPic(BeforFunc func(), imgbitmap robotgo.CBitmap, tolerance float64) (int, int, error) {
+func (area Area) UntilFindPic(BeforFunc func(i int), bmp Bitmap, tolerance float64) (Point, error) {
 	for i := 0; i < 188; i++ {
-		x, y, err := area.FindPic(imgbitmap, tolerance)
+		p, err := area.FindPic(bmp, tolerance)
 		if err == nil {
-			return x, y, nil
+			return p, nil
 		}
-		BeforFunc()
+		BeforFunc(i)
 	}
-	return 0, 0, errors.New("Find pic timeout!")
+	return Point{0, 0}, errors.New("Find pic timeout!")
 }
 
 // Center get the area center point.
 func (area Area) Center() Point {
 	return Point{area.X + area.W/2, area.Y + area.H/2}
+}
+
+// Start start point
+func (area Area) Start() Point {
+	return Point{area.X, area.Y}
+}
+
+// End end point
+func (area Area) End() Point {
+	return Point{area.X + area.W, area.Y + area.H}
 }
 
 // Splice Area to a arrays.
@@ -100,6 +111,46 @@ func (area Area) Split(sp Spl) Area {
 	return area.Splice(sp.R, sp.C)[sp.M][sp.N]
 }
 
+// 只能往下往右
+func (a Area) PointSplit(dist string, p Point) Area {
+	switch dist {
+	case "right":
+		// 即右
+		return Area{p.X + 2, a.Y, a.X + a.W - p.X - 2, a.H}
+	case "rightDown":
+		// 即右下
+		return Area{p.X + 2, p.Y + 2, a.X + a.W - p.X - 2, a.Y + a.H - p.Y - 2}
+	case "up":
+		// 上
+		return Area{a.X, p.Y - 2, a.W, a.Y + a.H - p.Y + 2}
+	case "down":
+		// 即下
+		return Area{a.X, p.Y + 2, a.W, a.Y + a.H - p.Y - 2}
+	default:
+		// 即下
+		return Area{a.X, p.Y + 2, a.W, a.Y + a.H - p.Y - 2}
+	}
+}
+
+// FindPicSeries
+// FindFunc true over; false continue
+func (area Area) FindPicSeries(dist string, FindFunc func(p Point) bool, bmp Bitmap, tolerance float64) (Point, error) {
+	a := area
+	for i := 0; i < 188; i++ {
+		p, err := a.FindPic(bmp, tolerance)
+		if err != nil {
+			return Point{-1, -1}, err
+		}
+		if FindFunc(p) == true {
+			return p, err
+		} else {
+			a = a.PointSplit(dist, p)
+			Sleep(233 + rand.Intn(233))
+		}
+	}
+	return Point{0, 0}, errors.New("Find pic timeout!")
+}
+
 // Test can save Area to imgage for debug.
 func (area Area) Test(pre, path string) {
 	path = strings.TrimRight(path, "/") + "/"
@@ -107,9 +158,9 @@ func (area Area) Test(pre, path string) {
 	pngName := path
 	pngName += string(time.Now().Format("2006_01_02.15_04_05")) + "-"
 	pngName += pre + "-"
-	pngName += "x" + strconv.Itoa(area.X) + "-"
-	pngName += "y" + strconv.Itoa(area.Y) + "-"
-	pngName += "w" + strconv.Itoa(area.W) + "-"
+	pngName += "x" + strconv.Itoa(area.X) + "_"
+	pngName += "y" + strconv.Itoa(area.Y) + "_"
+	pngName += "w" + strconv.Itoa(area.W) + "_"
 	pngName += "h" + strconv.Itoa(area.H) + ".png"
 	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
 	_ = robotgo.SaveBitmap(whereBitmap, pngName)

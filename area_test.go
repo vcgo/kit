@@ -7,6 +7,21 @@ import (
 	"github.com/go-vgo/robotgo"
 )
 
+func TestPointSplit(t *testing.T) {
+	area := Area{100, 100, 300, 200}
+	area.Test("a", "./tests")
+	p := Point{130, 166}
+	// right
+	a1 := area.PointSplit("right", p)
+	a1.Test("a1", "./tests")
+	// rightDown
+	a2 := area.PointSplit("rightDown", p)
+	a2.Test("a2", "./tests")
+	// down
+	a3 := area.PointSplit("down", p)
+	a3.Test("a3", "./tests")
+}
+
 func TestBitmap(t *testing.T) {
 	bitmap := Screen.Capture()
 	fmt.Println(bitmap)

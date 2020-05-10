@@ -62,3 +62,11 @@ func SmoothTo(d Point, sleep int) {
 	p := Point{x, y}
 	p.SmoothTo(d, sleep)
 }
+
+func Scroll(dist string) {
+	if dist != "up" {
+		dist = "down"
+	}
+	robotgo.ScrollMouse(1, dist)
+	Sleep(88 + rand.Intn(10))
+}

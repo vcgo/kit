@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
+	"go/format"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -13,20 +13,16 @@ import (
 
 func main() {
 
-	// if mkdirs("imgstr") == false {
-	// 	fmt.Println("mkdir imgstr failed!")
-	// 	return
-	// }
+	code := ""
 
-	f, _ := os.Create("imgstr.go")
-	defer f.Close()
-	w := bufio.NewWriter(f)
-
-	fmt.Fprintf(w, "%v\n", "package imgstr")
-	fmt.Fprintf(w, "%v\n", "import \"github.com/go-vgo/robotgo\"")
-	fmt.Fprintf(w, "%v\n", "var ImgStr map[string]robotgo.CBitmap")
-	fmt.Fprintf(w, "%v\n", "func init() {")
-	fmt.Fprintf(w, "%v\n", "ImgStr = map[string]robotgo.CBitmap{")
+	code += "package imgstr\n"
+	code += "import (\n"
+	code += " \"github.com/go-vgo/robotgo\"\n"
+	code += " \"github.com/vcgo/kit\"\n"
+	code += ")\n"
+	code += "var ImgStr map[string]kit.Bitmap\n"
+	code += "func init() {\n"
+	code += "ImgStr = map[string]kit.Bitmap{\n"
 
 	imgpath := "."
 	filepath.Walk(imgpath, func(imgsrc string, f os.FileInfo, err error) error {
@@ -51,12 +47,20 @@ func main() {
 		bit := robotgo.OpenBitmap(imgsrc, imgType)
 		str := robotgo.TostringBitmap(bit)
 		imgsrcStr := strings.Replace(imgsrc, "\\", "/", -1)
-		bitmapStr := "robotgo.CBitmap(robotgo.BitmapStr(\"" + str + "\"))"
-		fmt.Fprintf(w, "%v\n", "\""+imgsrcStr+"\":"+bitmapStr+",")
+		bitmapStr := "kit.Bitmap(robotgo.ToBitmap(robotgo.BitmapStr(\"" + str + "\")))"
+		code += "\"" + imgsrcStr + "\":" + bitmapStr + ",\n"
 		return nil
 	})
-	fmt.Fprintf(w, "%v\n", "}}")
-	w.Flush()
+
+	code += "}}"
+	res, err := format.Source([]byte(code))
+	if err != nil {
+		panic(err)
+	}
+	err2 := ioutil.WriteFile("./imgstr.go", res, 0755)
+	if err2 != nil {
+		panic(err)
+	}
 }
 
 func mkdirs(imgpath string) bool {

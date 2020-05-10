@@ -2,6 +2,8 @@ package kit
 
 import (
 	"math/rand"
+	"strconv"
+	"time"
 
 	"github.com/go-vgo/robotgo"
 )
@@ -24,17 +26,22 @@ func (p Point) GetColor() string {
 func (p Point) DragTo(d Point, sleep int) {
 	MoveTo(p.X, p.Y)
 	Sleep(66 + rand.Intn(22))
-	robotgo.MouseToggle("down", "left")
+	robotgo.MouseToggle("down")
 	Sleep(66 + rand.Intn(22))
-	p.SmoothTo(d, sleep)
+	robotgo.MouseToggle("down")
 	Sleep(66 + rand.Intn(22))
-	robotgo.MouseToggle("up", "left")
+	SmoothTo(d, sleep)
+	Sleep(66 + rand.Intn(22))
+	robotgo.MouseToggle("up")
+	Sleep(66 + rand.Intn(22))
+	robotgo.MouseToggle("up")
 	Sleep(66 + rand.Intn(22))
 }
 
 // SmoothTo start on a point, to another point.
 func (p Point) SmoothTo(d Point, sleep int) {
 	tmp := p
+	i := 0
 	for {
 		var m Point
 		if d.X-tmp.X < 2 {
@@ -45,22 +52,37 @@ func (p Point) SmoothTo(d Point, sleep int) {
 		if d.Y-tmp.Y < 2 {
 			m.Y = d.Y - tmp.Y
 		} else {
-			m.Y = rand.Intn(2)
+			m.Y = rand.Intn(2) + 1
 		}
 		tmp = tmp.Plus(m)
 		tmp.MoveTo()
 		if tmp == d {
 			return
 		}
-
-		if d.X-tmp.X < 18 {
-			Sleep(sleep * 3)
-		} else if d.X-tmp.X < 28 {
-			Sleep(sleep * 2)
+		//
+		if d.X-tmp.X < 20 && d.Y-tmp.Y < 20 {
+			if i%2 == 0 {
+				time.Sleep(time.Duration(sleep*2) * time.Nanosecond)
+			}
 		} else {
-			Sleep(sleep)
+			if i < 55 {
+				time.Sleep(time.Duration(sleep) * time.Nanosecond)
+			} else if i%3 == 0 {
+				time.Sleep(time.Duration(sleep) * time.Nanosecond)
+			}
 		}
+		i++
 	}
+}
+
+// Add
+func (p Point) Add(w, h int) Point {
+	return Point{p.X + w, p.Y + h}
+}
+
+// Square
+func (p Point) Square(a int) Point {
+	return Point{p.X + a, p.Y + a}
 }
 
 // Plus
@@ -96,4 +118,22 @@ func (p Point) LeftDoubleClick() {
 	Sleep(99 + rand.Intn(22))
 	robotgo.MouseToggle("up", "left")
 	Sleep(99 + rand.Intn(22))
+}
+
+func (p Point) Scroll(dist string) {
+	if dist != "up" {
+		dist = "down"
+	}
+	p.MoveTo()
+	Sleep(88 + rand.Intn(22))
+	robotgo.ScrollMouse(1, dist)
+	Sleep(88 + rand.Intn(22))
+}
+
+func (p Point) String() string {
+	return "P(" + strconv.Itoa(p.X) + ", " + strconv.Itoa(p.Y) + ")"
+}
+
+func (p Point) Area(w, h int) Area {
+	return Area{p.X, p.Y, w, h}
 }

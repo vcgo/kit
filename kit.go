@@ -64,7 +64,11 @@ func Sleep(x int) {
 
 // Fmt is print any variable
 func Fmt(desc string, args ...interface{}) string {
-	fmt.Println(Logger.Category, desc, args)
+	if len(args) > 0 {
+		fmt.Println(Logger.Category, desc, args)
+	} else {
+		fmt.Println(Logger.Category, desc)
+	}
 	return ""
 }
 
