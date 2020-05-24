@@ -22,6 +22,6 @@ func mouseToggle(upDown string, leftRight string) {
 	robotgo.MouseToggle(upDown, leftRight)
 }
 
-func ScrollMouse(dist string) {
+func mouseWheel(dist string) {
 	robotgo.ScrollMouse(1, dist)
 }
