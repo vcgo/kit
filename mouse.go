@@ -2,44 +2,40 @@ package kit
 
 import (
 	"math/rand"
-
-	"github.com/go-vgo/robotgo"
 )
 
 // MoveTo mouse move to x, y
 func MoveTo(x int, y int) {
-	robotgo.Move(x, y)
-	// robotgo.MoveSmooth(x, y, 0.033, 0.046, rand.Intn(9))
+	moveTo(x, y)
 }
 
-// MoveSmoothTo mouse move to x, y
-func MoveSmoothTo(x int, y int) {
-	robotgo.MoveSmooth(x, y, 0.033, 0.046, rand.Intn(9))
+func MouseToggle(togKey string, togBtn string) {
+	mouseToggle(togKey, togBtn)
 }
 
 // LeftClick mouse left click
 func LeftClick() {
-	robotgo.MouseToggle("down", "left")
+	mouseToggle("down", "left")
 	Sleep(55 + rand.Intn(10))
-	robotgo.MouseToggle("up", "left")
+	mouseToggle("up", "left")
 }
 
 // RightClick mouse right click
 func RightClick() {
-	robotgo.MouseToggle("down", "right")
+	mouseToggle("down", "right")
 	Sleep(55 + rand.Intn(10))
-	robotgo.MouseToggle("up", "right")
+	mouseToggle("up", "right")
 }
 
 // LeftDoubleClick mouse left double click
 func LeftDoubleClick() {
-	robotgo.MouseToggle("down", "left")
+	mouseToggle("down", "left")
 	Sleep(99 + rand.Intn(22))
-	robotgo.MouseToggle("up", "left")
+	mouseToggle("up", "left")
 	Sleep(99 + rand.Intn(22))
-	robotgo.MouseToggle("down", "left")
+	mouseToggle("down", "left")
 	Sleep(99 + rand.Intn(22))
-	robotgo.MouseToggle("up", "left")
+	mouseToggle("up", "left")
 	Sleep(99 + rand.Intn(22))
 }
 
@@ -57,16 +53,10 @@ func MoveDoubleClick(x int, y int) {
 	LeftDoubleClick()
 }
 
-func SmoothTo(d Point, sleep int) {
-	x, y := robotgo.GetMousePos()
-	p := Point{x, y}
-	p.SmoothTo(d, sleep)
-}
-
 func Scroll(dist string) {
 	if dist != "up" {
 		dist = "down"
 	}
-	robotgo.ScrollMouse(1, dist)
+	mouseWheel(dist)
 	Sleep(88 + rand.Intn(10))
 }

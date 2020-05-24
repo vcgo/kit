@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-vgo/robotgo"
+	"github.com/wilon/robotg"
 )
 
 type Point struct {
@@ -14,27 +14,23 @@ type Point struct {
 
 // MoveTo
 func (p Point) MoveTo() {
-	robotgo.Move(p.X, p.Y)
+	moveTo(p.X, p.Y)
 }
 
 // GetColor get the point color
 func (p Point) GetColor() string {
-	return robotgo.PadHex(robotgo.GetPxColor(p.X, p.Y))
+	return robotg.PadHex(robotg.GetPxColor(p.X, p.Y))
 }
 
 // DragTo start on a point, drag to another point.
 func (p Point) DragTo(d Point, sleep int) {
 	MoveTo(p.X, p.Y)
 	Sleep(66 + rand.Intn(22))
-	robotgo.MouseToggle("down")
+	mouseToggle("down", "left")
 	Sleep(66 + rand.Intn(22))
-	robotgo.MouseToggle("down")
+	smoothMoveTo(d.X, d.Y)
 	Sleep(66 + rand.Intn(22))
-	SmoothTo(d, sleep)
-	Sleep(66 + rand.Intn(22))
-	robotgo.MouseToggle("up")
-	Sleep(66 + rand.Intn(22))
-	robotgo.MouseToggle("up")
+	mouseToggle("up", "left")
 	Sleep(66 + rand.Intn(22))
 }
 
@@ -92,31 +88,31 @@ func (p Point) Plus(a Point) Point {
 
 // RightClick mouse right click
 func (p Point) RightClick() {
-	robotgo.Move(p.X, p.Y)
+	moveTo(p.X, p.Y)
 	Sleep(33 + rand.Intn(33))
-	robotgo.MouseToggle("down", "right")
+	mouseToggle("down", "right")
 	Sleep(33 + rand.Intn(33))
-	robotgo.MouseToggle("up", "right")
+	mouseToggle("up", "right")
 }
 
 // LeftClick mouse left click
 func (p Point) LeftClick() {
 	p.MoveTo()
-	robotgo.MouseToggle("down", "left")
+	mouseToggle("down", "left")
 	Sleep(55 + rand.Intn(10))
-	robotgo.MouseToggle("up", "left")
+	mouseToggle("up", "left")
 }
 
 // LeftDoubleClick mouse left double click
 func (p Point) LeftDoubleClick() {
 	p.MoveTo()
-	robotgo.MouseToggle("down", "left")
+	mouseToggle("down", "left")
 	Sleep(99 + rand.Intn(22))
-	robotgo.MouseToggle("up", "left")
+	mouseToggle("up", "left")
 	Sleep(99 + rand.Intn(22))
-	robotgo.MouseToggle("down", "left")
+	mouseToggle("down", "left")
 	Sleep(99 + rand.Intn(22))
-	robotgo.MouseToggle("up", "left")
+	mouseToggle("up", "left")
 	Sleep(99 + rand.Intn(22))
 }
 
@@ -126,7 +122,7 @@ func (p Point) Scroll(dist string) {
 	}
 	p.MoveTo()
 	Sleep(88 + rand.Intn(22))
-	robotgo.ScrollMouse(1, dist)
+	mouseWheel(dist)
 	Sleep(88 + rand.Intn(22))
 }
 

@@ -2,14 +2,9 @@ package kit
 
 import (
 	"math/rand"
-
-	"github.com/go-vgo/robotgo"
 )
 
 var KeyUpMap = make(map[string]bool)
-
-// For the param 'key string',You can refer to:
-// https://github.com/go-vgo/robotgo/blob/master/docs/keys.md
 
 // KeyPress is press key func
 func KeyPress(key string) {
@@ -20,21 +15,22 @@ func KeyPress(key string) {
 
 // KeyDown is press down a key
 func KeyDown(key string) {
-	robotgo.KeyToggle(key, "down")
+	keyDown(key)
 	KeyUpMap[key] = true
 }
 
 // KeyUp is press up a key
 func KeyUp(key string) {
-	robotgo.KeyToggle(key, "up")
+	keyUp(key)
 	KeyUpMap[key] = false
 }
 
 // KeyDefer some key is pressing, then use this defer func to up it.
 func KeyDefer() {
-	for key, isUp := range KeyUpMap {
-		if isUp == true {
+	for key, needUp := range KeyUpMap {
+		if needUp == true {
 			KeyUp(key)
+			Sleep(55 + rand.Intn(10))
 		}
 	}
 }
