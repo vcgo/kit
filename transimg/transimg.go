@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/go-vgo/robotgo"
+	"github.com/wilon/robotg"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 
 	code += "package imgstr\n"
 	code += "import (\n"
-	code += " \"github.com/go-vgo/robotgo\"\n"
+	code += " \"github.com/wilon/robotg\"\n"
 	code += " \"github.com/vcgo/kit\"\n"
 	code += ")\n"
 	code += "var ImgStr map[string]kit.Bitmap\n"
@@ -44,10 +44,10 @@ func main() {
 			return nil
 		}
 
-		bit := robotgo.OpenBitmap(imgsrc, imgType)
-		str := robotgo.TostringBitmap(bit)
+		bit := robotg.OpenBitmap(imgsrc, imgType)
+		str := robotg.TostringBitmap(bit)
 		imgsrcStr := strings.Replace(imgsrc, "\\", "/", -1)
-		bitmapStr := "kit.Bitmap(robotgo.ToBitmap(robotgo.BitmapStr(\"" + str + "\")))"
+		bitmapStr := "kit.Bitmap(robotg.ToBitmap(robotg.BitmapStr(\"" + str + "\")))"
 		code += "\"" + imgsrcStr + "\":" + bitmapStr + ",\n"
 		return nil
 	})
