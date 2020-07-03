@@ -11,15 +11,8 @@ import (
 	"time"
 
 	log "github.com/go-ozzo/ozzo-log"
-	"github.com/wilon/robotg"
+	"github.com/go-vgo/robotgo"
 )
-
-// Area is a screen area,
-// X,Y is the start point
-// W,H is the area's width and hight
-type Area struct {
-	X, Y, W, H int
-}
 
 var (
 	Logger      log.Logger
@@ -28,7 +21,7 @@ var (
 )
 
 func init() {
-	w, h := robotg.GetScreenSize()
+	w, h := robotgo.GetScreenSize()
 	Screen = Area{0, 0, w, h}
 	rand.Seed(time.Now().Unix())
 }
@@ -94,7 +87,7 @@ func Exit(desc string, args ...interface{}) {
 	fileLine := fileName + " " + strconv.Itoa(line) + " "
 	Logger.Error(fileLine + "  " + desc + argsDesc)
 	Logger.Close()
-	robotg.ShowAlert("DNF GO Error!", desc)
+	robotgo.ShowAlert("DNF GO Error!", desc)
 	os.Exit(1)
 }
 

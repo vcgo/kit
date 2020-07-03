@@ -2,7 +2,7 @@
 
 ## Requirements
 
-https://github.com/go-vgo/robotgo#requirements
+https://github.com/go-vgo/robotgoooo#requirements
 
 ## Install
 

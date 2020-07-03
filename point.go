@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/wilon/robotg"
+	"github.com/go-vgo/robotgo"
 )
 
 type Point struct {
@@ -19,7 +19,7 @@ func (p Point) MoveTo() {
 
 // GetColor get the point color
 func (p Point) GetColor() string {
-	return robotg.PadHex(robotg.GetPxColor(p.X, p.Y))
+	return robotgo.PadHex(robotgo.GetPxColor(p.X, p.Y))
 }
 
 // DragTo start on a point, drag to another point.

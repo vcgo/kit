@@ -8,16 +8,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wilon/robotg"
+	"github.com/go-vgo/robotgo"
 )
+
+// Area is a screen area,
+// X,Y is the start point
+// W,H is the area's width and hight
+type Area struct {
+	X, Y, W, H int
+}
 
 // Help for param:
 //
-// * color robotg.CHex, is HEX color like this: 0xFF00DD
+// * color robotgo.CHex, is HEX color like this: 0xFF00DD
 //
-// * imgbitmap robotg.CBitmap, only support .bmp now.
+// * imgbitmap robotgo.CBitmap, only support .bmp now.
 //
-//   - robotg.CBitmap(robotg.OpenBitmap("/your/path/image.bmp", 2))
+//   - robotgo.CBitmap(robotgo.OpenBitmap("/your/path/image.bmp", 2))
 //
 //   - or use tool transimg, `go get github.com/vcgo/kit/transimg`:
 //      Generate: 	Put .bmp images path to GOPATH, then on the path run `transimg`
@@ -25,10 +32,10 @@ import (
 //           		Screen.FindPic(ImgStr["bmpimages/image.bmp"], 0.14)
 
 // FindColor from area, return nil is success
-func (area Area) FindColor(color robotg.CHex, tolerance float64) (Point, error) {
-	whereBitmap := robotg.CaptureScreen(area.X, area.Y, area.W, area.H)
-	x, y := robotg.FindColor(color, whereBitmap, tolerance)
-	robotg.FreeBitmap(whereBitmap)
+func (area Area) FindColor(color robotgo.CHex, tolerance float64) (Point, error) {
+	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
+	x, y := robotgo.FindColor(color, whereBitmap, tolerance)
+	robotgo.FreeBitmap(whereBitmap)
 	if x > 0 || y > 0 {
 		return Point{area.X + x, area.Y + y}, nil
 	} else {
@@ -38,11 +45,11 @@ func (area Area) FindColor(color robotg.CHex, tolerance float64) (Point, error) 
 
 // FindPic find the position of image from area, return nil is success
 func (area Area) FindPic(bmp Bitmap, tolerance float64) (Point, error) {
-	findBitmap := robotg.ToCBitmap(robotg.Bitmap(bmp))
-	whereBitmap := robotg.CaptureScreen(area.X, area.Y, area.W, area.H)
-	x, y := robotg.FindBitmap(findBitmap, whereBitmap, tolerance)
-	robotg.FreeBitmap(whereBitmap)
-	// robotg.FreeBitmap(findBitmap)
+	findBitmap := robotgo.ToCBitmap(robotgo.Bitmap(bmp))
+	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
+	x, y := robotgo.FindBitmap(findBitmap, whereBitmap, tolerance)
+	robotgo.FreeBitmap(whereBitmap)
+	// robotgo.FreeBitmap(findBitmap)
 	if x > 0 || y > 0 {
 		return Point{area.X + x, area.Y + y}, nil
 	} else {
@@ -162,9 +169,9 @@ func (area Area) Test(pre, path string) {
 	pngName += "y" + strconv.Itoa(area.Y) + "_"
 	pngName += "w" + strconv.Itoa(area.W) + "_"
 	pngName += "h" + strconv.Itoa(area.H) + ".png"
-	whereBitmap := robotg.CaptureScreen(area.X, area.Y, area.W, area.H)
-	_ = robotg.SaveBitmap(whereBitmap, pngName)
-	robotg.FreeBitmap(whereBitmap)
+	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
+	_ = robotgo.SaveBitmap(whereBitmap, pngName)
+	robotgo.FreeBitmap(whereBitmap)
 }
 
 // CountPixel list Area pixel.
