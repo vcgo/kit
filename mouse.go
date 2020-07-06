@@ -9,8 +9,8 @@ func MoveTo(x int, y int) {
 	moveTo(x, y)
 }
 
-func MouseToggle(togKey string, togBtn string) {
-	mouseToggle(togKey, togBtn)
+func MouseToggle(upDown, leftRight string) {
+	mouseToggle(upDown, leftRight)
 }
 
 // LeftClick mouse left click
