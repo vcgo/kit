@@ -3,6 +3,7 @@ package kit
 import (
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-vgo/robotgo"
@@ -19,11 +20,30 @@ func (p Point) MoveTo() {
 
 // GetColor get the point color
 func (p Point) GetColor() string {
-	return robotgo.PadHex(robotgo.GetPxColor(p.X, p.Y))
+	if engine == "adb" {
+		bitmap, _ := Screen.adbCapture()
+		cbitmap := robotgo.ToCBitmap(bitmap.Bitmap)
+		return robotgo.PadHex(robotgo.GetColor(cbitmap, p.X, p.Y))
+	} else {
+		return robotgo.PadHex(robotgo.GetPxColor(p.X, p.Y))
+	}
 }
 
 // DragTo start on a point, drag to another point.
 func (p Point) DragTo(d Point, sleep int) {
+	if engine == "adb" {
+		shellArr := []string{
+			"input",
+			"swipe",
+			strconv.Itoa(p.X),
+			strconv.Itoa(p.Y),
+			strconv.Itoa(d.X),
+			strconv.Itoa(d.Y),
+		}
+		shell := strings.Join(shellArr, " ")
+		device.RunCommand(shell)
+		return
+	}
 	MoveTo(p.X, p.Y)
 	Sleep(66 + rand.Intn(22))
 	mouseToggle("down", "left")
@@ -97,9 +117,28 @@ func (p Point) RightClick() {
 
 // LeftClick mouse left click
 func (p Point) LeftClick() {
+	if engine == "adb" {
+		shellArr := []string{
+			"input",
+			"tap",
+			strconv.Itoa(p.X),
+			strconv.Itoa(p.Y),
+		}
+		shell := strings.Join(shellArr, " ")
+		device.RunCommand(shell)
+		return
+	}
 	p.MoveTo()
 	mouseToggle("down", "left")
 	Sleep(55 + rand.Intn(10))
+	mouseToggle("up", "left")
+}
+
+// LeftLongClick mouse left long click
+func (p Point) LeftLongClick(sleep int) {
+	p.MoveTo()
+	mouseToggle("down", "left")
+	Sleep(sleep + rand.Intn(10))
 	mouseToggle("up", "left")
 }
 

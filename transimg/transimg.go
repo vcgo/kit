@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go/format"
 	"io/ioutil"
 	"os"
@@ -13,17 +14,32 @@ import (
 
 func main() {
 
-	code := ""
+	code1 := `package imgstr
 
-	code += "package imgstr\n"
-	code += "import (\n"
-	code += " \"github.com/go-vgo/robotgo\"\n"
-	code += " \"github.com/vcgo/kit\"\n"
-	code += ")\n"
-	code += "var ImgStr map[string]kit.Bitmap\n"
-	code += "func init() {\n"
-	code += "ImgStr = map[string]kit.Bitmap{\n"
+import (
+	"github.com/go-vgo/robotgo"
+	"github.com/vcgo/kit"
+)
 
+var strmap map[string]string
+
+func init() {
+	strmap = map[string]string{
+`
+	code2 := ""
+	code3 := `
+	}
+}
+
+func Get(str string) kit.Bitmap {
+	v, ok := strmap[str]
+	if ok {
+		return kit.NewBitmap(robotgo.ToBitmap(robotgo.BitmapStr(v)))
+	} else {
+		return kit.Bitmap{}
+	}
+}
+`
 	imgpath := "."
 	filepath.Walk(imgpath, func(imgsrc string, f os.FileInfo, err error) error {
 		if f == nil {
@@ -36,31 +52,34 @@ func main() {
 		var imgType int
 		switch path.Ext(imgsrc) {
 		case ".png":
-			// imgType = 0
-			return nil
+			imgType = 1
 		case ".bmp":
 			imgType = 2
 		default:
 			return nil
 		}
-
+		if len(os.Args) == 2 && os.Args[1] == "-v" {
+			fmt.Println("Add", imgsrc)
+		}
 		bit := robotgo.OpenBitmap(imgsrc, imgType)
 		str := robotgo.TostringBitmap(bit)
 		imgsrcStr := strings.Replace(imgsrc, "\\", "/", -1)
-		bitmapStr := "kit.Bitmap(robotgo.ToBitmap(robotgo.BitmapStr(\"" + str + "\")))"
-		code += "\"" + imgsrcStr + "\":" + bitmapStr + ",\n"
+		bitmapStr := "\"" + str + "\""
+		code2 += "\"" + imgsrcStr + "\":" + bitmapStr + ","
 		return nil
 	})
 
-	code += "}}"
-	res, err := format.Source([]byte(code))
+	res, err := format.Source([]byte(code1 + code2 + code3))
 	if err != nil {
+		fmt.Println("transimg format.Source error!")
 		panic(err)
 	}
 	err2 := ioutil.WriteFile("./imgstr.go", res, 0755)
 	if err2 != nil {
+		fmt.Println("transimg ioutil.WriteFile error!")
 		panic(err)
 	}
+	fmt.Println("transimg success!")
 }
 
 func mkdirs(imgpath string) bool {

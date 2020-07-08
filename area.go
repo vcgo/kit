@@ -33,9 +33,17 @@ type Area struct {
 
 // FindColor from area, return nil is success
 func (area Area) FindColor(color robotgo.CHex, tolerance float64) (Point, error) {
-	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
-	x, y := robotgo.FindColor(color, whereBitmap, tolerance)
-	robotgo.FreeBitmap(whereBitmap)
+	var x, y int
+	if engine == "adb" {
+		bitmap, _ := area.adbCapture()
+		whereBitmap := robotgo.ToCBitmap(bitmap.Bitmap)
+		x, y = robotgo.FindColor(color, whereBitmap, tolerance)
+		bitmap.Free()
+	} else {
+		whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
+		x, y = robotgo.FindColor(color, whereBitmap, tolerance)
+		robotgo.FreeBitmap(whereBitmap)
+	}
 	if x > 0 || y > 0 {
 		return Point{area.X + x, area.Y + y}, nil
 	} else {
@@ -43,13 +51,21 @@ func (area Area) FindColor(color robotgo.CHex, tolerance float64) (Point, error)
 	}
 }
 
-// FindPic find the position of image from area, return nil is success
+// FindPic find the position of image from area, return nil is success.
+// bmp unusefull need to free.
 func (area Area) FindPic(bmp Bitmap, tolerance float64) (Point, error) {
-	findBitmap := robotgo.ToCBitmap(robotgo.Bitmap(bmp))
-	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
-	x, y := robotgo.FindBitmap(findBitmap, whereBitmap, tolerance)
-	robotgo.FreeBitmap(whereBitmap)
-	// robotgo.FreeBitmap(findBitmap)
+	var x, y int
+	findBitmap := robotgo.ToCBitmap(bmp.Bitmap)
+	if engine == "adb" {
+		bitmap, _ := area.adbCapture()
+		whereBitmap := robotgo.ToCBitmap(bitmap.Bitmap)
+		x, y = robotgo.FindBitmap(findBitmap, whereBitmap, tolerance)
+		bitmap.Free()
+	} else {
+		whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
+		x, y = robotgo.FindBitmap(findBitmap, whereBitmap, tolerance)
+		robotgo.FreeBitmap(whereBitmap)
+	}
 	if x > 0 || y > 0 {
 		return Point{area.X + x, area.Y + y}, nil
 	} else {

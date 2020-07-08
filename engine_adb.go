@@ -3,6 +3,7 @@ package kit
 import (
 	"errors"
 	"math/rand"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -33,21 +34,24 @@ func OpenAdbDevice(args ...string) error {
 	if err != nil {
 		return err
 	}
-	if len(args) == 0 {
-		d := devices[0]
-		device = client.Device(adb.DeviceWithSerial(d.Serial))
-		SwichEngine("adb")
-	} else {
-		serial := args[0]
-		for _, d := range devices {
-			if d.Serial == serial {
-				device = client.Device(adb.DeviceWithSerial(d.Serial))
-				SwichEngine("adb")
-				return nil
-			}
-		}
-		return errors.New("Don't have serial: " + serial)
+	if len(devices) < 1 {
+		return errors.New("Don't have devices")
 	}
+	serial := devices[0].Serial
+	if len(args) == 1 {
+		serial = args[0]
+	}
+	device = client.Device(adb.DeviceWithSerial(serial))
+	// Get size
+	output, _ := device.RunCommand("wm size")
+	reg, _ := regexp.Compile(`(\d+)x(\d+)`)
+	regRes := reg.FindStringSubmatch(output)
+	if len(regRes) == 3 {
+		w, _ := strconv.Atoi(regRes[1])
+		h, _ := strconv.Atoi(regRes[2])
+		Screen = Area{0, 0, w, h}
+	}
+	SwichEngine("adb")
 	return nil
 }
 
@@ -99,7 +103,7 @@ var adbe adbEngine
 // 		kit.MouseToggle("up", "left")
 var (
 	adbPoint Point
-	taped    bool
+	taped    = false
 	evnid    = 90000
 	events   []event
 )
@@ -150,6 +154,7 @@ func evnPoint(p Point) {
 	events = append(events, event{EV_ABS, ABS_MT_TOUCH_MAJOR, 2 + rand.Intn(3)})
 	events = append(events, event{EV_ABS, ABS_MT_TOUCH_MINOR, 2 + rand.Intn(3)})
 	evnDone()
+	sendevent()
 }
 
 func sendevent() {
