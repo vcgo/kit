@@ -89,6 +89,9 @@ func (a Area) adbCapture() (Bitmap, error) {
 	shell := "screencap -p"
 	output, _ := device.RunCommand(shell)
 	lines := strings.Split(output, "\n")
+	if len(lines) <= 2 {
+		return Bitmap{}, errors.New("Capture png error.")
+	}
 	pngStr := strings.Join(lines[2:], "\n")
 	pngReader := strings.NewReader(pngStr)
 	out, _ := os.Create(file)

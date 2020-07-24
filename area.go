@@ -185,9 +185,9 @@ func (area Area) Test(pre, path string) {
 	pngName += "y" + strconv.Itoa(area.Y) + "_"
 	pngName += "w" + strconv.Itoa(area.W) + "_"
 	pngName += "h" + strconv.Itoa(area.H) + ".png"
-	whereBitmap := robotgo.CaptureScreen(area.X, area.Y, area.W, area.H)
-	_ = robotgo.SaveBitmap(whereBitmap, pngName)
-	robotgo.FreeBitmap(whereBitmap)
+	bm := area.Capture()
+	bm.SavePng(pngName)
+	bm.Free()
 }
 
 // CountPixel list Area pixel.

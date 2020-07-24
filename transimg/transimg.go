@@ -21,10 +21,10 @@ import (
 	"github.com/vcgo/kit"
 )
 
-var strmap map[string]string
+var bitmap map[string]kit.Bitmap
 
 func init() {
-	strmap = map[string]string{
+	bitmap = map[string]kit.Bitmap{
 `
 	code2 := ""
 	code3 := `
@@ -32,9 +32,8 @@ func init() {
 }
 
 func Get(str string) kit.Bitmap {
-	v, ok := strmap[str]
-	if ok {
-		return kit.NewBitmap(robotgo.ToBitmap(robotgo.BitmapStr(v)))
+	if b, ok := bitmap[str]; ok {
+		return b
 	} else {
 		return kit.Bitmap{}
 	}
@@ -64,7 +63,7 @@ func Get(str string) kit.Bitmap {
 		bit := robotgo.OpenBitmap(imgsrc, imgType)
 		str := robotgo.TostringBitmap(bit)
 		imgsrcStr := strings.Replace(imgsrc, "\\", "/", -1)
-		bitmapStr := "\"" + str + "\""
+		bitmapStr := "kit.NewBitmap(robotgo.ToBitmap(robotgo.BitmapStr(\"" + str + "\")))"
 		code2 += "\"" + imgsrcStr + "\":" + bitmapStr + ","
 		return nil
 	})
