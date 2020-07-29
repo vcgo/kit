@@ -42,14 +42,60 @@ func (area Area) Capture() Bitmap {
 	}
 }
 
-func (wherebmp Bitmap) FindBitmap(findbmp Bitmap, tolerance float64) (Point, error) {
+func (bmp Bitmap) FindBitmap(findbmp Bitmap, tolerance float64) (Point, error) {
 	findcbmp := robotgo.ToCBitmap(findbmp.Bitmap)
-	wherecbmp := robotgo.ToCBitmap(wherebmp.Bitmap)
+	wherecbmp := robotgo.ToCBitmap(bmp.Bitmap)
 	x, y := robotgo.FindBitmap(findcbmp, wherecbmp, tolerance)
 	if x > 0 || y > 0 {
 		return Point{x, y}, nil
 	} else {
 		return Point{-1, -1}, errors.New("Cant find bitmap")
+	}
+}
+
+type HexDeviation struct {
+	X   int
+	Y   int
+	Hex uint32
+}
+
+type HexMatrix struct {
+	Hex       uint32
+	Deviation []HexDeviation
+}
+
+func (bmp Bitmap) FindHexMatrix(hm HexMatrix) (Point, error) {
+	wherecbmp := robotgo.ToCBitmap(bmp.Bitmap)
+	w, h := bmp.Bitmap.Width, bmp.Bitmap.Height
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			hex := robotgo.CHex(robotgo.GetColor(wherecbmp, x, y))
+			if hex == robotgo.UintToHex(hm.Hex) {
+				match := true
+				for _, v := range hm.Deviation {
+					m, n := x+v.X, y+v.Y
+					hex := robotgo.CHex(robotgo.GetColor(wherecbmp, m, n))
+					if hex != robotgo.UintToHex(v.Hex) {
+						match = false
+					}
+				}
+				if match {
+					return Point{x, y}, nil
+				}
+			}
+		}
+	}
+	return Point{-1, -1}, errors.New("Cant find HexMatrix")
+}
+
+func (bmp Bitmap) FindColor(color robotgo.CHex, tolerance float64) (Point, error) {
+	var x, y int
+	wherecbmp := robotgo.ToCBitmap(bmp.Bitmap)
+	x, y = robotgo.FindColor(color, wherecbmp, tolerance)
+	if x > 0 || y > 0 {
+		return Point{x, y}, nil
+	} else {
+		return Point{x, y}, errors.New("Cant find color")
 	}
 }
 
