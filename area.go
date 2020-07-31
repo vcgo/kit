@@ -134,7 +134,7 @@ func (area Area) Split(sp Spl) Area {
 	return area.Splice(sp.R, sp.C)[sp.M][sp.N]
 }
 
-// 只能往下往右
+// PointSplit
 func (a Area) PointSplit(dist string, p Point) Area {
 	switch dist {
 	case "right":
