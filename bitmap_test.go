@@ -9,47 +9,45 @@ import (
 	"github.com/go-vgo/robotgo"
 )
 
+var color1 uint32 = 0xf6f8fe
+var color2 uint32 = 0x4e6ef2
+var hm = HexMatrix{
+	color1,
+	[]HexPoint{
+		{Point{0, 1}, color1},
+		{Point{0, 2}, color1},
+		{Point{0, 3}, color1},
+		{Point{0, 4}, color1},
+		{Point{0, 5}, color1},
+		{Point{0, 6}, color1},
+		{Point{0, 7}, color1},
+		{Point{0, 8}, color1},
+	},
+	[]HexArea{
+		{Area{-10, -10, 8, 8}, color2, 64},
+		{Area{10, -10, 8, 8}, color2, 64},
+		{Area{-10, 10, 8, 8}, color2, 32},
+		{Area{10, 10, 8, 8}, color2, 32},
+	},
+}
+
 // go test -run TestFindHexMatrix
+// diff speed
 func TestFindHexMatrix(t *testing.T) {
-	Screen := Area{0, 0, 800, 600}
-	var color1 uint32 = 0xf6f8fe
-	var color2 uint32 = 0x4e6ef2
-	hm := HexMatrix{
-		color1,
-		[]HexPoint{
-			{Point{0, 1}, color1},
-			{Point{0, 2}, color1},
-			{Point{0, 3}, color1},
-			{Point{0, 4}, color1},
-			{Point{0, 5}, color1},
-			{Point{0, 6}, color1},
-			{Point{0, 7}, color1},
-			{Point{0, 8}, color1},
-		},
-		[]HexArea{
-			{Area{-10, -10, 8, 8}, color2, 64},
-			{Area{10, -10, 8, 8}, color2, 64},
-			{Area{-10, 10, 8, 8}, color2, 32},
-			{Area{10, 10, 8, 8}, color2, 32},
-		},
-	}
+	Screen = Area{0, 0, 800, 600}
 	startHm := time.Now()
 	for i := 0; i < 10; i++ {
 		start := time.Now()
-		bmp := Screen.Capture()
-		p, err := bmp.FindHexMatrix(hm)
+		p, err := Screen.FindHexMatrix(hm)
 		fmt.Println(time.Since(start), p, err, runtime.NumGoroutine())
-		bmp.Free()
 	}
 	fmt.Println("========FindHexMatrix", time.Since(startHm))
 
 	startHmGo := time.Now()
 	for i := 0; i < 10; i++ {
-		bmp := Screen.Capture()
 		start := time.Now()
-		p, err := bmp.FindHexMatrixGo(hm)
+		p, err := Screen.FindHexMatrixGo(hm)
 		fmt.Println(time.Since(start), p, err, runtime.NumGoroutine())
-		defer bmp.Free()
 	}
 	fmt.Println("========FindHexMatrixGo", time.Since(startHmGo))
 
@@ -61,34 +59,39 @@ func TestFindHexMatrix(t *testing.T) {
 		fmt.Println(time.Since(start), p, err, runtime.NumGoroutine())
 	}
 	fmt.Println("========FindPic", time.Since(startFp), color2)
+
+	time.Sleep(time.Second * 3)
+
 }
 
-func TestFindHexMatrixGo(t *testing.T) {
-	var color1 uint32 = 0xf6f8fe
-	var color2 uint32 = 0x4e6ef2
-	hm := HexMatrix{
-		color1,
-		[]HexPoint{
-			{Point{0, 1}, color1},
-			{Point{0, 2}, color1},
-			{Point{0, 3}, color1},
-			{Point{0, 4}, color1},
-			{Point{0, 5}, color1},
-			{Point{0, 6}, color1},
-			{Point{0, 7}, color1},
-			{Point{0, 8}, color1},
-		},
-		[]HexArea{
-			{Area{-10, -10, 8, 8}, color2, 64},
-			{Area{10, -10, 8, 8}, color2, 64},
-			{Area{-10, 10, 8, 8}, color2, 32},
-			{Area{10, 10, 8, 8}, color2, 32},
-		},
+func TestAreaFindHexMatrix(t *testing.T) {
+	go outputNumGoroutine()
+	for {
+		start := time.Now()
+		p, err := Screen.FindHexMatrix(hm)
+		fmt.Println(time.Since(start), p, err, runtime.NumGoroutine())
+		time.Sleep(time.Millisecond * 333)
 	}
-	bmp := Screen.Capture()
-	start := time.Now()
-	p, err := bmp.FindHexMatrixGo(hm)
-	fmt.Println(time.Since(start), p, err, runtime.NumGoroutine())
-	defer bmp.Free()
-	time.Sleep(time.Second * 5)
+}
+
+func TestAreaFindHexMatrixGo(t *testing.T) {
+	go outputNumGoroutine()
+	for {
+		start := time.Now()
+		p, err := Screen.FindHexMatrixGo(hm)
+		fmt.Println(time.Since(start), p, err, runtime.NumGoroutine())
+		time.Sleep(time.Millisecond * 333)
+	}
+}
+
+func outputNumGoroutine() {
+	mark := 0
+	for {
+		n := runtime.NumGoroutine()
+		if mark != n {
+			mark = n
+			fmt.Println("NumGoroutine", n)
+		}
+		time.Sleep(time.Millisecond * 100)
+	}
 }

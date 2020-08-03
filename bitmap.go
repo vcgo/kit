@@ -2,7 +2,6 @@ package kit
 
 import (
 	"errors"
-	"fmt"
 	"image"
 	"image/png"
 	"io"
@@ -11,7 +10,6 @@ import (
 	"path"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/go-vgo/robotgo"
@@ -52,156 +50,6 @@ func (bmp Bitmap) FindBitmap(findbmp Bitmap, tolerance float64) (Point, error) {
 		return Point{x, y}, nil
 	} else {
 		return Point{-1, -1}, errors.New("Cant find bitmap")
-	}
-}
-
-// HexPoint
-// HexMatrix find this Point Hex
-type HexPoint struct {
-	Point Point
-	Hex   uint32
-}
-
-// HexArea
-// HexMatrix find this Area count Hex >= Count
-type HexArea struct {
-	Area  Area
-	Hex   uint32
-	Count int
-}
-
-type HexMatrix struct {
-	Hex    uint32
-	Points []HexPoint
-	Areas  []HexArea
-}
-
-func (bmp Bitmap) FindHexMatrix(hm HexMatrix) (Point, error) {
-	wherecbmp := robotgo.ToCBitmap(bmp.Bitmap)
-	w, h := bmp.Bitmap.Width, bmp.Bitmap.Height
-	for x := 0; x < w; x++ {
-		for y := 0; y < h; y++ {
-			hex := robotgo.CHex(robotgo.GetColor(wherecbmp, x, y))
-			if hex == robotgo.UintToHex(hm.Hex) {
-				match := true
-				// find points
-				for _, p := range hm.Points {
-					m, n := x+p.Point.X, y+p.Point.Y
-					hex := robotgo.CHex(robotgo.GetColor(wherecbmp, m, n))
-					if hex != robotgo.UintToHex(p.Hex) {
-						match = false
-						break
-					}
-				}
-				// count areas
-				for _, a := range hm.Areas {
-					count := 0
-					for m := x + a.Area.X; m < x+a.Area.X+a.Area.W; m++ {
-						for n := y + a.Area.Y; n < y+a.Area.Y+a.Area.H; n++ {
-							hex := robotgo.CHex(robotgo.GetColor(wherecbmp, m, n))
-							if hex == robotgo.UintToHex(a.Hex) {
-								count++
-								if count >= a.Count {
-									break
-								}
-							}
-						}
-						if count >= a.Count {
-							break
-						}
-					}
-					if count < a.Count {
-						match = false
-						break
-					}
-				}
-				// res
-				if match {
-					return Point{x, y}, nil
-				}
-			}
-		}
-	}
-	return Point{-1, -1}, errors.New("Cant find HexMatrix")
-}
-
-func (bmp Bitmap) FindHexMatrixGo(hm HexMatrix) (Point, error) {
-	wherecbmp := robotgo.ToCBitmap(bmp.Bitmap)
-	w, h := bmp.Bitmap.Width, bmp.Bitmap.Height
-	wg := &sync.WaitGroup{}
-	resCh := make(chan Point)
-	doneCh := make(chan bool)
-	for x := 0; x < w; x++ {
-		wg.Add(1)
-		go func(x int, resCh chan Point) {
-			defer wg.Done()
-			for y := 0; y < h; y++ {
-				hex := robotgo.CHex(robotgo.GetColor(wherecbmp, x, y))
-				if hex == robotgo.UintToHex(hm.Hex) {
-					match := true
-					// find points
-					for _, p := range hm.Points {
-						m, n := x+p.Point.X, y+p.Point.Y
-						hex := robotgo.CHex(robotgo.GetColor(wherecbmp, m, n))
-						if hex != robotgo.UintToHex(p.Hex) {
-							match = false
-							break
-						}
-					}
-					// count areas
-					for _, a := range hm.Areas {
-						count := 0
-						for m := x + a.Area.X; m < x+a.Area.X+a.Area.W; m++ {
-							for n := y + a.Area.Y; n < y+a.Area.Y+a.Area.H; n++ {
-								hex := robotgo.CHex(robotgo.GetColor(wherecbmp, m, n))
-								if hex == robotgo.UintToHex(a.Hex) {
-									count++
-									if count >= a.Count {
-										break
-									}
-								}
-							}
-							if count >= a.Count {
-								break
-							}
-						}
-						if count < a.Count {
-							match = false
-							break
-						}
-					}
-					// res
-					if match {
-						resCh <- Point{x, y}
-						for {
-							select {
-							case <-doneCh:
-								return
-							}
-						}
-					}
-				}
-			}
-		}(x, resCh)
-	}
-	go func() {
-		wg.Wait()
-		fmt.Println("wg.Wait finished")
-		resCh <- Point{-1, -1}
-	}()
-	for {
-		select {
-		case p := <-resCh:
-			go func() {
-				for i := 0; i < 99; i++ {
-					doneCh <- true
-				}
-			}()
-			if p.X < 0 {
-				return Point{-1, -1}, errors.New("Cant find HexMatrix")
-			}
-			return p, nil
-		}
 	}
 }
 
