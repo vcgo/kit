@@ -32,6 +32,16 @@ func NewBitmap(bit robotgo.Bitmap, args ...string) Bitmap {
 	return Bitmap{bit, file}
 }
 
+func NewBitmapFromStr(str string) Bitmap {
+	return NewBitmap(robotgo.ToBitmap(robotgo.BitmapStr(str)))
+}
+
+func (bmp Bitmap) Portion(a Area) Bitmap {
+	wherecbmp := robotgo.ToCBitmap(bmp.Bitmap)
+	bit := robotgo.GetPortion(wherecbmp, a.X, a.Y, a.W, a.H)
+	return NewBitmap(robotgo.ToBitmap(bit))
+}
+
 func (area Area) Capture() Bitmap {
 	if engine == "adb" {
 		bitmap, _ := area.adbCapture()
@@ -92,7 +102,7 @@ func (bm Bitmap) Free() {
 // 	return Bitmap(robotgo.ToBitmap(robotgo.BitmapStr(str)))
 // }
 
-func (a Area) adbCapture() (Bitmap, error) {
+func (a Area) adbCapture2() (Bitmap, error) {
 	// Get .png output.
 	pngName := string(time.Now().Format("2006_01_02.15_04_05"))
 	pngName += strconv.Itoa(rand.Intn(99999)) + "_adbadb.png"

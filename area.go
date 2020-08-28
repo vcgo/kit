@@ -19,6 +19,10 @@ type Area struct {
 	X, Y, W, H int
 }
 
+func A(x, y, w, h int) Area {
+	return Area{x, y, w, h}
+}
+
 // Help for param:
 //
 // * color robotgo.CHex, is HEX color like this: 0xFF00DD
@@ -158,7 +162,12 @@ func (a Area) PointSplit(dist string, p Point) Area {
 
 // FindPicSeries
 // FindFunc true over; false continue
-func (area Area) FindPicSeries(dist string, FindFunc func(p Point) bool, bmp Bitmap, tolerance float64) (Point, error) {
+func (area Area) FindPicSeries(
+	dist string,
+	FindFunc func(p Point) bool,
+	bmp Bitmap,
+	tolerance float64,
+) (Point, error) {
 	a := area
 	for i := 0; i < 188; i++ {
 		p, err := a.FindPic(bmp, tolerance)

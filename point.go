@@ -13,6 +13,10 @@ type Point struct {
 	X, Y int
 }
 
+func P(x, y int) Point {
+	return Point{x, y}
+}
+
 // MoveTo
 func (p Point) MoveTo() {
 	moveTo(p.X, p.Y)

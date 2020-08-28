@@ -2,11 +2,16 @@ package kit
 
 import (
 	"errors"
+	"io"
 	"math/rand"
+	"os"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/go-vgo/robotgo"
 	adb "github.com/zach-klippenstein/goadb"
 )
 
@@ -179,4 +184,33 @@ func (e event) str() string {
 	str += strconv.Itoa(e.Code) + " "
 	str += strconv.Itoa(e.Value)
 	return str
+}
+
+func (a Area) adbCapture() (Bitmap, error) {
+	// Get .png output.
+	shell := "screencap -p"
+	output, _ := device.RunCommand(shell)
+	lines := strings.Split(output, "\n")
+	if len(lines) <= 2 {
+		return Bitmap{}, errors.New("Capture png error.")
+	}
+	pngStr := strings.Join(lines[2:], "\n")
+	// save to .png
+	pngName := string(time.Now().Format("2006_01_02.15_04_05"))
+	pngName += strconv.Itoa(rand.Intn(99999)) + "_adbadb.png"
+	pngReader := strings.NewReader(pngStr)
+	file := path.Join(os.TempDir(), pngName)
+	out, _ := os.Create(file)
+	defer out.Close()
+	io.Copy(out, pngReader)
+	// get full bitmap
+	fullBit := robotgo.OpenBitmap(file)
+	// Need clip ?
+	if a != Screen {
+		bit := robotgo.GetPortion(fullBit, a.X, a.Y, a.W, a.H)
+		robotgo.FreeBitmap(fullBit)
+		return NewBitmap(robotgo.ToBitmap(bit), file), nil
+	} else {
+		return NewBitmap(robotgo.ToBitmap(fullBit), file), nil
+	}
 }
