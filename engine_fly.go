@@ -127,7 +127,7 @@ type flyEngine struct {
 	Proc map[string]*syscall.LazyProc
 }
 
-var flye *flyEngine
+var flye = &flyEngine{}
 
 // OpenFly
 func OpenFly(vid, pid int) (int, int, error) {
