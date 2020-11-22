@@ -216,14 +216,14 @@ func (area Area) CountPixel() map[Point]string {
 // HexMatrix find this Point Hex
 type HexPoint struct {
 	Point Point
-	Hex   uint32
+	Hex   int32
 }
 
 // HexArea
 // HexMatrix find this Area count Hex >= Count
 type HexArea struct {
 	Area  Area
-	Hex   uint32
+	Hex   int32
 	Count int
 }
 
@@ -250,9 +250,16 @@ func (area Area) FindHexMatrix(hm HexMatrix) (Point, error) {
 				for _, p := range hm.Points {
 					m, n := x+p.Point.X, y+p.Point.Y
 					hex := robotgo.CHex(robotgo.GetColor(whereBitmap, m, n))
-					if hex != robotgo.UintToHex(p.Hex) {
-						match = false
-						break
+					if p.Hex >= 0 {
+						if hex != robotgo.UintToHex(uint32(p.Hex)) {
+							match = false
+							break
+						}
+					} else {
+						if hex == robotgo.UintToHex(uint32(-p.Hex)) {
+							match = false
+							break
+						}
 					}
 				}
 				// count areas
@@ -261,10 +268,19 @@ func (area Area) FindHexMatrix(hm HexMatrix) (Point, error) {
 					for m := x + a.Area.X; m < x+a.Area.X+a.Area.W; m++ {
 						for n := y + a.Area.Y; n < y+a.Area.Y+a.Area.H; n++ {
 							hex := robotgo.CHex(robotgo.GetColor(whereBitmap, m, n))
-							if hex == robotgo.UintToHex(a.Hex) {
-								count++
-								if count >= a.Count {
-									break
+							if a.Hex >= 0 {
+								if hex == robotgo.UintToHex(uint32(a.Hex)) {
+									count++
+									if count >= a.Count {
+										break
+									}
+								}
+							} else {
+								if hex != robotgo.UintToHex(uint32(-a.Hex)) {
+									count++
+									if count >= a.Count {
+										break
+									}
 								}
 							}
 						}
@@ -279,7 +295,7 @@ func (area Area) FindHexMatrix(hm HexMatrix) (Point, error) {
 				}
 				// res
 				if match {
-					return Point{x, y}, nil
+					return Point{area.X + x, area.Y + y}, nil
 				}
 			}
 		}
@@ -311,9 +327,16 @@ func (area Area) FindHexMatrixGo(hm HexMatrix) (Point, error) {
 					for _, p := range hm.Points {
 						m, n := x+p.Point.X, y+p.Point.Y
 						hex := robotgo.CHex(robotgo.GetColor(whereBitmap, m, n))
-						if hex != robotgo.UintToHex(p.Hex) {
-							match = false
-							break
+						if p.Hex >= 0 {
+							if hex != robotgo.UintToHex(uint32(p.Hex)) {
+								match = false
+								break
+							}
+						} else {
+							if hex == robotgo.UintToHex(uint32(-p.Hex)) {
+								match = false
+								break
+							}
 						}
 					}
 					// count areas
@@ -322,10 +345,19 @@ func (area Area) FindHexMatrixGo(hm HexMatrix) (Point, error) {
 						for m := x + a.Area.X; m < x+a.Area.X+a.Area.W; m++ {
 							for n := y + a.Area.Y; n < y+a.Area.Y+a.Area.H; n++ {
 								hex := robotgo.CHex(robotgo.GetColor(whereBitmap, m, n))
-								if hex == robotgo.UintToHex(a.Hex) {
-									count++
-									if count >= a.Count {
-										break
+								if a.Hex >= 0 {
+									if hex == robotgo.UintToHex(uint32(a.Hex)) {
+										count++
+										if count >= a.Count {
+											break
+										}
+									}
+								} else {
+									if hex != robotgo.UintToHex(uint32(-a.Hex)) {
+										count++
+										if count >= a.Count {
+											break
+										}
 									}
 								}
 							}
@@ -340,7 +372,7 @@ func (area Area) FindHexMatrixGo(hm HexMatrix) (Point, error) {
 					}
 					// res
 					if match {
-						resCh <- Point{x, y}
+						resCh <- Point{area.X + x, area.Y + y}
 					}
 				}
 			}
