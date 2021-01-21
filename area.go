@@ -272,7 +272,7 @@ func (area Area) FindHexMatrix(hm HexMatrix) (Point, error) {
 		// count areas
 		for _, ha := range hm.Areas {
 			a := ha.Area
-			hmBmp := robotgo.GetPortion(whereBitmap, p.X+a.X, p.Y+a.Y, a.W, a.H)
+			hmBmp := robotgo.GetPortion(whereBitmap, p.X+a.X-area.X, p.Y+a.Y-area.Y, a.W, a.H)
 			defer robotgo.FreeBitmap(hmBmp)
 			count := 0
 			if ha.Hex >= 0 {
